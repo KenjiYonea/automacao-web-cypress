@@ -6,7 +6,7 @@ describe('Automation Exercise', () => {
     const usuario = {
         nome: 'PGATS Aut',
         email: 'pgtas-aut-test1001@email.com',
-        senha: '123456 ' // Confirmar se a conta foi criada com espaço no final
+        senha: '123456 '
     }
 
     it('Cadastrar um novo usuário com sucesso', () => {
