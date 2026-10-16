@@ -1,10 +1,2 @@
-const { defineConfig } = require("cypress");
-
-module.exports = defineConfig({
-  e2e: {
-    watchForFileChanges: false,
-    setupNodeEvents(on, config) {
-      // implement node event listeners here
-    },
-  },
-});
+const { defineConfig } = require('cypress')
+module.exports = defineConfig({ e2e: { baseUrl: 'https://www.automationexercise.com', specPattern: 'cypress/e2e/**/*.cy.js', supportFile: 'cypress/support/e2e.js' } })

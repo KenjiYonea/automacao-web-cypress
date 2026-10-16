@@ -1,16 +1,1 @@
-{
-  "name": "pgts---automacao-web",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "cypress": "^13.7.3"
-  }
-}
+{"name":"automacao-web-cypress","version":"1.0.0","private":true,"scripts":{"test":"cypress run","cy:open":"cypress open"},"devDependencies":{"cypress":"13.7.3"}}
