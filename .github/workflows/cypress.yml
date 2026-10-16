@@ -1,3 +1,4 @@
+
 name: Cypress E2E Tests
 
 on:
@@ -11,10 +12,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do repositório
+      - name: Checkout do repositorio
         uses: actions/checkout@v4
 
       - name: Executar testes Cypress
         uses: cypress-io/github-action@v7
         with:
           browser: electron
+        env:
+          CYPRESS_email: ${{ secrets.CYPRESS_EMAIL }}
+          CYPRESS_senha: ${{ secrets.CYPRESS_SENHA }}
+          CYPRESS_nome: ${{ secrets.CYPRESS_NOME }}
+          CYPRESS_senhaCadastro: ${{ secrets.CYPRESS_SENHA_CADASTRO }}
