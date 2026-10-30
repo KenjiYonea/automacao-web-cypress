@@ -1,7 +1,9 @@
 
 /// <reference types="cypress" />
-
+const cadastro = require('../modules/cadastro')
+const checkout = require('../modules/checkout')
 const carrinho = require('../modules/carrinho')
+const login = require('../modules/login')
 
 describe('Automation Exercise - Carrinho', () => {
 
@@ -138,6 +140,190 @@ describe('Automation Exercise - Carrinho', () => {
     cy.get('#product-1')
       .should('be.visible')
       .and('contain.text', 'Blue Top')
+  })
+
+  it('Realizar compra com cadastro antes do checkout', () => {
+
+    const usuario = {
+      nome: 'QA Teste',
+      email: `qa.checkout.${Date.now()}@email.com`,
+      senha: 'Teste@12345',
+      endereco: 'Rua Teste, 100',
+      estado: 'California',
+      cidade: 'Los Angeles',
+      cep: '90001'
+    }
+
+    // Cadastrar usuário
+    cy.visit('/login')
+
+    cadastro.iniciarCadastro(usuario.nome, usuario.email)
+    cadastro.preencherCadastro(usuario)
+    cadastro.verificarCadastro()
+
+    cy.contains('Logged in as')
+      .should('contain.text', usuario.nome)
+
+    // Adicionar produto
+    carrinho.adicionarProduto()
+
+    cy.get('#product-1')
+      .should('be.visible')
+      .and('contain.text', 'Blue Top')
+
+    // Iniciar checkout
+    cy.contains('Proceed To Checkout').click()
+
+    cy.location('pathname')
+      .should('eq', '/checkout')
+
+    // Validar endereço de entrega
+    cy.get('#address_delivery')
+      .should('contain.text', usuario.endereco)
+      .and('contain.text', usuario.cidade)
+      .and('contain.text', usuario.estado)
+
+    // Validar produto no pedido
+    cy.get('#cart_info #product-1')
+      .should('be.visible')
+      .and('contain.text', 'Blue Top')
+
+    // Finalizar pedido
+    cy.get('textarea[name="message"]')
+      .type('Pedido automatizado - Cypress')
+
+    cy.contains('a', 'Place Order').click()
+
+    cy.location('pathname')
+      .should('eq', '/payment')
+
+    checkout.preencherPagamento({
+      nome: usuario.nome,
+      numero: '4111111111111111',
+      cvc: '123',
+      mes: '12',
+      ano: '2030'
+    })
+
+    cy.get('[data-qa="pay-button"]')
+      .should('be.enabled')
+      .click()
+
+    checkout.validarPedidoConcluido()
+
+    // Excluir conta criada pelo teste
+    cy.get('a[href="/delete_account"]').click()
+
+    cy.get('[data-qa="account-deleted"]')
+      .should('be.visible')
+      .and('contain.text', 'Account Deleted!')
+
+    cy.get('[data-qa="continue-button"]').click()
+  })
+
+  it('Realizar compra com login antes do checkout', () => {
+
+    const usuario = {
+      nome: 'QA Checkout',
+      email: `qa.login.checkout.${Date.now()}@email.com`,
+      senha: 'Teste@12345',
+      endereco: 'Rua Teste, 100',
+      estado: 'California',
+      cidade: 'Los Angeles',
+      cep: '90001'
+    }
+
+    // Preparar uma conta exclusiva para o teste
+    cy.visit('/login')
+
+    cadastro.iniciarCadastro(usuario.nome, usuario.email)
+    cadastro.preencherCadastro(usuario)
+    cadastro.verificarCadastro()
+
+    cy.contains('Logged in as')
+      .should('contain.text', usuario.nome)
+
+    // Encerrar a sessão
+    cy.get('a[href="/logout"]')
+      .should('be.visible')
+      .click()
+
+    cy.location('pathname')
+      .should('eq', '/login')
+
+    // Realizar login com a conta criada
+    login.preencherLogin(usuario.email, usuario.senha)
+    login.verificarLogin(usuario.nome)
+
+    // Preparar o carrinho
+    carrinho.adicionarProduto()
+
+    cy.get('#product-1')
+      .should('be.visible')
+      .and('contain.text', 'Blue Top')
+
+    // Iniciar checkout
+    cy.contains('Proceed To Checkout')
+      .should('be.visible')
+      .click()
+
+    cy.location('pathname')
+      .should('eq', '/checkout')
+
+    // Validar endereço de entrega
+    cy.get('#address_delivery')
+      .should('be.visible')
+      .and('contain.text', usuario.endereco)
+      .and('contain.text', usuario.cidade)
+      .and('contain.text', usuario.estado)
+
+    // Validar produto no resumo do pedido
+    cy.get('#cart_info #product-1')
+      .should('be.visible')
+      .and('contain.text', 'Blue Top')
+
+    // Finalizar pedido
+    cy.get('textarea[name="message"]')
+      .type('Pedido automatizado - Cypress')
+
+    cy.contains('a', 'Place Order')
+      .should('be.visible')
+      .click()
+
+    cy.location('pathname')
+      .should('eq', '/payment')
+
+    // Preencher pagamento de teste
+    checkout.preencherPagamento({
+      nome: usuario.nome,
+      numero: '4111111111111111',
+      cvc: '123',
+      mes: '12',
+      ano: '2030'
+    })
+
+    cy.get('[data-qa="pay-button"]')
+      .should('be.visible')
+      .and('be.enabled')
+      .click()
+
+    // Validar conclusão da compra
+    checkout.validarPedidoConcluido()
+
+    // Excluir a conta criada
+    cy.get('a[href="/delete_account"]')
+      .should('be.visible')
+      .click()
+
+    cy.get('[data-qa="account-deleted"]')
+      .should('be.visible')
+      .and('contain.text', 'Account Deleted!')
+
+    cy.get('[data-qa="continue-button"]')
+      .click()
+
+    cy.location('pathname')
+      .should('eq', '/')
   })
 
 })

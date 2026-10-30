@@ -1,1 +1,19 @@
-{"name":"automacao-web-cypress","version":"1.0.0","private":true,"scripts":{"test":"cypress run","cy:open":"cypress open"},"devDependencies":{"cypress":"13.7.3"}}
+{
+  "name": "automacao-web-cypress",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "cypress run",
+    "cy:open": "cypress open",
+    "report:clean": "node -e \"require('fs').rmSync('cypress/reports', { recursive: true, force: true })\"",
+    "report:merge": "mochawesome-merge \"cypress/reports/mochawesome/*.json\" -o cypress/reports/relatorio-final.json",
+    "report:html": "marge cypress/reports/relatorio-final.json --reportDir cypress/reports/html --reportFilename relatorio-final",
+    "test:report": "npm run report:clean && npm test && npm run report:merge && npm run report:html"
+  },
+  "devDependencies": {
+    "cypress": "13.7.3",
+    "mochawesome": "^8.1.1",
+    "mochawesome-merge": "^5.1.1",
+    "mochawesome-report-generator": "^6.3.2"
+  }
+}
