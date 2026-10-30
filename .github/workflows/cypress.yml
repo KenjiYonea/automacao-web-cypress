@@ -24,3 +24,30 @@ jobs:
           CYPRESS_senha: ${{ secrets.CYPRESS_SENHA }}
           CYPRESS_nome: ${{ secrets.CYPRESS_NOME }}
           CYPRESS_senhaCadastro: ${{ secrets.CYPRESS_SENHA_CADASTRO }}
+
+      - name: Consolidar relatorios Mochawesome
+        if: always()
+        run: npm run report:merge
+        continue-on-error: true
+
+      - name: Gerar relatorio HTML
+        if: always()
+        run: npm run report:html
+        continue-on-error: true
+
+      - name: Publicar relatorio como artefato
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-cypress
+          path: cypress/reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Publicar screenshots de falhas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-cypress
+          path: cypress/screenshots/
+          if-no-files-found: ignore
